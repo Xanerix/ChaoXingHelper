@@ -1,0 +1,4 @@
+# 仓库和工作区统一 LF，不受本机 core.autocrlf 影响
+* text=auto eol=lf
+
+*.bat text eol=crlf
