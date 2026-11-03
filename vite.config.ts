@@ -21,6 +21,9 @@ export default defineConfig({
           '超星学习通辅助工具，支持自动答题、自动刷课等功能。仅供学习交流使用，请勿用于商业用途。',
         license: 'MIT',
         icon: 'https://vitejs.dev/logo.svg',
+        // 指向最新 Release 的附件，Tampermonkey 据此检查更新；附件名须与 build.fileName 一致
+        downloadURL: 'https://github.com/Xanerix/ChaoXingHelper/releases/latest/download/course-helper.user.js',
+        updateURL: 'https://github.com/Xanerix/ChaoXingHelper/releases/latest/download/course-helper.user.js',
         match: [
           '*://*.chaoxing.com/*',
         ],
