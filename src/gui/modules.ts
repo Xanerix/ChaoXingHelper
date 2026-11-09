@@ -206,7 +206,7 @@ export const MODULES: ModuleDef[] = [
     cat: 'work',
     zh: '自动提交',
     en: 'AutoSubmit',
-    desc: '章节作业正确率达到阈值时自动提交，否则只保存。AI 答案默认不计入正确率',
+    desc: '章节作业和新版作业正确率达到阈值时自动提交，否则只暂存。AI 答案默认不计入正确率',
     enabled: toggle('submit', 'autoSubmitWork'),
     suffix: () => `${settings.submit.threshold}%`,
     settings: [setting('submit', 'threshold')],
