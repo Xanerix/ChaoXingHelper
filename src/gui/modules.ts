@@ -82,10 +82,10 @@ export const optionLabel = (field: ChoiceField, value: unknown) =>
 
 const L = (zh: string, en: string) => (isEnglish.value ? en : zh)
 
-/** 按「地址|Key」缓存，两者没变就不重复请求；失败也缓存成空列表，接口不支持时手填模型名 */
+/** 按地址、Key 和 User-Agent 缓存；失败也缓存成空列表，接口不支持时手填模型名 */
 let modelCache: { key: string; models: string[] } | null = null
 const suggestModels = async () => {
-  const key = `${settings.ai.baseUrl}|${settings.ai.apiKey}`
+  const key = JSON.stringify([settings.ai.baseUrl, settings.ai.apiKey, settings.ai.userAgent])
   if (modelCache?.key !== key) {
     const result = await fetchModels(settings.ai)
     modelCache = { key, models: result.ok ? result.models : [] }
@@ -141,6 +141,19 @@ export const MODULES: ModuleDef[] = [
     settings: [
       setting('ai', 'baseUrl'),
       setting('ai', 'apiKey'),
+      setting('ai', 'userAgent', {
+        // 客户端标识参考值，可手动修改；不同版本及中转站的要求可能不同
+        suggest: async () => [
+          'opencode/0.1.0',
+          'claude-cli/1.0.24 (external, cli)',
+          'codex-cli/0.1.0',
+          'Cline/3.14.0',
+          'Roo-Code/3.15.0',
+          'Cursor/0.48.6 (darwin arm64)',
+          'Trae/1.2.0',
+          'GitHubCopilotChat/0.24.0',
+        ],
+      }),
       setting('ai', 'model', { suggest: suggestModels }),
       setting('ai', 'vision'),
       setting('ai', 'countAnswer'),

@@ -138,8 +138,14 @@ export type ModelListResult = { ok: true; models: string[] } | { ok: false; mess
  */
 type AiSettings = Settings['ai']
 
+const buildAiHeaders = (apiKey: string, userAgent: string): Record<string, string> => {
+  const headers: Record<string, string> = { Authorization: `Bearer ${apiKey}` }
+  if (userAgent.trim()) headers['User-Agent'] = userAgent.trim()
+  return headers
+}
+
 /** GET /models，只取 id；不少兼容网关没实现这个接口，失败了用户照样能手填 */
-export const fetchModels = ({ baseUrl, apiKey }: AiSettings): Promise<ModelListResult> => {
+export const fetchModels = ({ baseUrl, apiKey, userAgent }: AiSettings): Promise<ModelListResult> => {
   if (!baseUrl || !apiKey) {
     return Promise.resolve({ ok: false, message: '先填地址和 Key 才能拉模型列表' })
   }
@@ -148,7 +154,7 @@ export const fetchModels = ({ baseUrl, apiKey }: AiSettings): Promise<ModelListR
     GM_xmlhttpRequest({
       url: `${baseUrl.replace(/\/+$/, '')}/models`,
       method: 'GET',
-      headers: { Authorization: `Bearer ${apiKey}` },
+      headers: buildAiHeaders(apiKey, userAgent),
       timeout: MODELS_TIMEOUT,
       onload: (response) => {
         try {
@@ -172,7 +178,10 @@ export const fetchModels = ({ baseUrl, apiKey }: AiSettings): Promise<ModelListR
   })
 }
 
-export const askAi = async (question: Question, { baseUrl, apiKey, model, vision }: AiSettings): Promise<SearchResult> => {
+export const askAi = async (
+  question: Question,
+  { baseUrl, apiKey, userAgent, model, vision }: AiSettings,
+): Promise<SearchResult> => {
   if (!baseUrl || !apiKey || !model) {
     return { ok: false, message: 'AI 接口的 Base URL、Key、模型没填全' }
   }
@@ -184,7 +193,7 @@ export const askAi = async (question: Question, { baseUrl, apiKey, model, vision
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
+        ...buildAiHeaders(apiKey, userAgent),
       },
       // 不传 temperature / response_format：部分推理模型和兼容网关会直接拒掉
       data: JSON.stringify({

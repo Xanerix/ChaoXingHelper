@@ -53,6 +53,11 @@ export const schema = {
       placeholder: 'OpenAI 兼容接口，写到 /chat/completions 前面为止',
     }),
     apiKey: text('', { label: 'Key', placeholder: 'AI 接口的 API Key', secret: true }),
+    userAgent: text('', {
+      label: 'User-Agent',
+      placeholder: '聚焦选择客户端标识，留空使用默认值',
+      tip: '用于兼容校验客户端标识的中转站，支持候选选择或手填；对模型列表和答题请求生效，已在部分中转站实测通过，不保证所有站点通用',
+    }),
     model: text('', { label: '模型', placeholder: '模型名，聚焦时拉取候选' }),
     /** 题目里的图片以 image_url 块发给模型，模型不支持识图时开着会 400 */
     vision: bool(false, { label: '发送题目图片', tip: '模型不支持识图时请求会报错' }),

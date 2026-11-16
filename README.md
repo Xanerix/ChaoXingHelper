@@ -27,6 +27,18 @@ src/
 用的是题库海的自助卡密渠道：`POST https://search.tikuhai.com/api/open/v1/search/exact`，
 鉴权只需要一个请求头 `X-Consumer-Token`（卡密或个人 API Key）
 
+## 自建 AI 与中转站兼容
+
+在「自建 AI」中填写 OpenAI 兼容接口的地址、Key 和模型。地址写到 `/chat/completions` 前面，例如 `https://example.com/v1`；脚本会自动拼接请求路径。
+
+部分中转站会校验客户端标识。如果出现「仅支持编程客户端」等提示，可在「User-Agent」输入框中选择候选值或手动填写服务商支持的值。内置 OpenCode、Claude Code、Codex、Cline、Roo Code、Cursor、Trae 和 GitHub Copilot 的客户端标识参考值。
+
+- 自定义 User-Agent 已由用户在所用中转站实测通过，但不保证所有候选值、站点或浏览器环境都适用。
+- 留空保持默认请求头；只修改 User-Agent，不附加其他客户端专用请求头，也不切换 API 协议。
+- 设置同时用于模型列表和答题请求，不影响题目图片下载或题库请求。
+- 修改后重新聚焦模型输入框会重新拉取候选模型；答题流程需关闭「自动答题」后再开启，使新设置生效。
+- 请遵守服务商的使用规则；若仍被拒绝，需向服务商确认支持的接入方式。
+
 ## 构建
 
 ```bash
