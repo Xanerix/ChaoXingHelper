@@ -138,9 +138,29 @@ export type ModelListResult = { ok: true; models: string[] } | { ok: false; mess
  */
 type AiSettings = Settings['ai']
 
-const buildAiHeaders = (apiKey: string, userAgent: string): Record<string, string> => {
+const isOpenCodeHost = (baseUrl: string) => {
+  try {
+    const host = new URL(baseUrl).hostname.toLowerCase()
+    return host === 'opencode.ai' || host.endsWith('.opencode.ai')
+  } catch {
+    return false
+  }
+}
+
+const createSessionId = () => {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID()
+  }
+  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`
+}
+
+/** 同一页面会话复用同一个 ID，满足 OpenCode 的路由与缓存要求 */
+const opencodeSessionId = createSessionId()
+
+const buildAiHeaders = (baseUrl: string, apiKey: string, userAgent: string): Record<string, string> => {
   const headers: Record<string, string> = { Authorization: `Bearer ${apiKey}` }
   if (userAgent.trim()) headers['User-Agent'] = userAgent.trim()
+  if (isOpenCodeHost(baseUrl)) headers['x-opencode-session'] = opencodeSessionId
   return headers
 }
 
@@ -154,7 +174,7 @@ export const fetchModels = ({ baseUrl, apiKey, userAgent }: AiSettings): Promise
     GM_xmlhttpRequest({
       url: `${baseUrl.replace(/\/+$/, '')}/models`,
       method: 'GET',
-      headers: buildAiHeaders(apiKey, userAgent),
+      headers: buildAiHeaders(baseUrl, apiKey, userAgent),
       timeout: MODELS_TIMEOUT,
       onload: (response) => {
         try {
@@ -193,7 +213,7 @@ export const askAi = async (
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        ...buildAiHeaders(apiKey, userAgent),
+        ...buildAiHeaders(baseUrl, apiKey, userAgent),
       },
       // 不传 temperature / response_format：部分推理模型和兼容网关会直接拒掉
       data: JSON.stringify({
